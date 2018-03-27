@@ -16,7 +16,7 @@ def start_skill():
 
 @ask.intent('ChangePowerIntent')
 def change_power(power_value):
-    print power_value
+    print(power_value)
 
     r = blink_ir_led.change_power(power_value)
 
@@ -29,7 +29,7 @@ def change_power(power_value):
 
 @ask.intent('ChangeSourceIntent')
 def change_source(source_value):
-    print source_value
+    print(source_value)
 
     blink_ir_led.change_source(source_value)
 
@@ -38,7 +38,7 @@ def change_source(source_value):
 
 @ask.intent('MuteIntent')
 def change_mute(mute_value):
-    print mute_value
+    print(mute_value)
 
     blink_ir_led.change_mute()
 
@@ -47,26 +47,51 @@ def change_mute(mute_value):
 
 @ask.intent('ChangeVolumeIntent')
 def change_volume(volume_value, increase_or_decrease_volume):
-    print volume_value
-    print increase_or_decrease_volume
+    print(volume_value)
+    print(increase_or_decrease_volume)
 
     blink_ir_led.change_volume(int(volume_value), increase_or_decrease_volume)
 
     text = 'Updating the volume by {}'.format(volume_value)
     return statement(text)
 
+@ask.intent('OpenSourceMenuIntent')
+def change_sourcemenu(source_value):
+    print(source_value)
+    r = blink_ir_led.change_sourcemenu(source_value)
+    if source_value == 'open':
+        text = 'Opening the source menu'
+    elif source_value == 'close':
+        text = 'Closing the source menu'
+    else:
+        text = 'Sorry, I could not find that command.'
+    return statement(text)
+
+@ask.intent('MoveIntent')
+def change_move(move_value):
+    print(move_value)
+
+    blink_ir_led.change_move(move_value)
+
+    text = 'Moving {}'.format(move_value)
+    return statement(text)
+
 # API endpoint
 @app.route('/api', methods=['POST'])
 def api():
-    print request.form
+    print(request.form)
     action = request.form['action']
     value = request.form['value']
     if action == 'power':
         blink_ir_led.change_power(value)
     elif action == 'source':
         blink_ir_led.change_source(value)
+    elif action == 'sourcemenu':
+        blink_ir_led.change_sourcemenu(value)
     elif action == 'mute':
         blink_ir_led.change_mute()
+    elif action == 'move':
+        blink_ir_led.change_move(value)
     elif action == 'volume':
         if int(value) >= 0:
             increase_or_decrease_volume = 'increase'

@@ -1,0 +1,17 @@
+[Unit]
+Description=TVRemote
+
+
+[Service]
+Environment=/home/pi/
+Environment=PATH=/home/pi/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/bin/bash /home/pi/alexa-tv-remote/scripts/alexa-tv-remote.sh
+WorkingDirectory=/home/pi/alexa-tv-remote/
+Type=forking
+StandardOutput=inherit
+StandardError=inherit
+Restart=on-failure
+User=pi
+
+[Install]
+WantedBy=multi-user.target

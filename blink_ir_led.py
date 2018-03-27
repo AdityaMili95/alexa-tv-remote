@@ -8,13 +8,29 @@ time_between_press_before_exit = 0.5
 time_between_press_volume = 0.15
 
 # LIRC conf file when finding out blink values for IR LED
-lirc_file_conf = '~/lgremote2'
+lirc_file_conf = 'myTv'
 
 def change_power(power_value):
     if power_value != 'on' and power_value != 'off':
         return False
 
     os.system('irsend SEND_ONCE {} KEY_POWER'.format(lirc_file_conf))
+
+def change_sourcemenu(source_value):
+    if source_value == 'open':
+        os.system('irsend SEND_ONCE {} KEY_SWITCHVIDEOMODE'.format(lirc_file_conf))
+    elif source_value == 'close':
+        os.system('irsend SEND_ONCE {} KEY_EXIT'.format(lirc_file_conf))
+
+def change_move(move_value):
+    if move_value == 'up':
+        os.system('irsend SEND_ONCE {} KEY_UP'.format(lirc_file_conf))
+    elif move_value == 'right':
+        os.system('irsend SEND_ONCE {} KEY_RIGHT'.format(lirc_file_conf))
+    elif move_value == 'down':
+        os.system('irsend SEND_ONCE {} KEY_DOWN'.format(lirc_file_conf))
+    elif move_value == 'left':
+        os.system('irsend SEND_ONCE {} KEY_LEFT'.format(lirc_file_conf))
 
 def change_source(source_value):
     if source_value == 'cable box':
