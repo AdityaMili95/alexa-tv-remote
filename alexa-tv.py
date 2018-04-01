@@ -2,14 +2,13 @@ import os
 import json
 import time
 from pprint import pprint
-from flask import Flask, request
+from flask import Flask
 from flask_ask import Ask, statement, question, session
 
 
 time_between_press_initial = 1.5
 time_between_press_source = 0.2
 time_between_press_before_exit = 0.5
-time_between_press_volume = 0.15
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -22,7 +21,6 @@ def change_power_func(power_value):
 
     os.system('irsend SEND_ONCE {} KEY_POWER'.format(lirc_file_conf))
     return True
-
 
 def change_volume_func(volume_value, increase_or_decrease_volume):
     key = ''
@@ -39,65 +37,62 @@ def change_volume_func(volume_value, increase_or_decrease_volume):
         key = 'KEY_VOLUMEDOWN'
         text = 'Reducing the volume by {}'.format(volume_value)
     else:
-        return text
+    	return text
 
-    for x in range(0, volume_value):
+    for x in range (0, volume_value):
         time.sleep(time_between_press_volume)
         os.system('irsend SEND_ONCE {} {}'.format(lirc_file_conf, key))
 
     return text
-
 
 def change_program_func(program_value, next_or_previous_program):
-    key = ''
+	key = ''
 
-    if program_value > 20:
-        program_value = 20
+	if program_value > 20:
+		program_value = 20
+	
+	text = 'Sorry, I could not find that command.'
 
-    text = 'Sorry, I could not find that command.'
+	if next_or_previous_program == 'next' or next_or_previous_program == 'forward':
+		text = 'Updating the channel forward by {}'.format(program_value)
+		key = 'KEY_PAGEUP'
+	elif next_or_previous_program == 'previous' or next_or_previous_program == 'back':
+		key = 'KEY_PAGEDOWN'
+		text = 'Updating the channel backward by {}'.format(program_value)
+	else:
+		return text
 
-    if next_or_previous_program == 'next' or next_or_previous_program == 'forward':
-        text = 'Updating the channel forward by {}'.format(program_value)
-        key = 'KEY_PAGEUP'
-    elif next_or_previous_program == 'previous' or next_or_previous_program == 'back':
-        key = 'KEY_PAGEDOWN'
-        text = 'Updating the channel backward by {}'.format(program_value)
-    else:
-        return text
+	for x in range (0, program_value):
+		time.sleep(time_between_press_volume)
+		os.system('irsend SEND_ONCE {} {}'.format(lirc_file_conf, key))
 
-    for x in range(0, program_value):
-        time.sleep(time_between_press_volume)
-        os.system('irsend SEND_ONCE {} {}'.format(lirc_file_conf, key))
+	return text
 
-    return text
 
 
 def change_ok_func():
-    os.system('irsend SEND_ONCE {} KEY_OK'.format(lirc_file_conf))
-
+	os.system('irsend SEND_ONCE {} KEY_OK'.format(lirc_file_conf))
 
 def change_programnumber_func(program_value):
 
-    val = program_value
-    if val > 99:
-        val = 99
-    elif val < 0:
-        val = 0
+	val = program_value
+	if val > 99:
+		val = 99
+	elif val < 0:
+		val = 0
 
-    txtnumber = str(val)
-    text = 'Updating to channel {}'.format(txtnumber)
+	txtnumber = str(val)
+	text = 'Updating to channel {}'.format(txtnumber)
 
-    if val < 10:
-        os.system('irsend SEND_ONCE {} KEY_{}'.format(
-            lirc_file_conf, txtnumber))
-    else:
-        os.system('irsend SEND_ONCE {} KEY_{}'.format(
-            lirc_file_conf, txtnumber[:1]))
-        time.sleep(time_between_press_volume)
-        os.system('irsend SEND_ONCE {} KEY_{}'.format(
-            lirc_file_conf, txtnumber[1:2]))
+	if val > 9:
+		os.system('irsend SEND_ONCE {} KEY_{}'.format(lirc_file_conf,txtnumber))
+	else:
+		os.system('irsend SEND_ONCE {} KEY_{}'.format(lirc_file_conf,txtnumber[:1]))
+		time.sleep(time_between_press_volume)
+		os.system('irsend SEND_ONCE {} KEY_{}'.format(lirc_file_conf,txtnumber[1:2]))
 
-    return text
+	return text
+
 
 
 def change_move_func(move_value):
@@ -110,10 +105,9 @@ def change_move_func(move_value):
     elif move_value == 'left':
         os.system('irsend SEND_ONCE {} KEY_LEFT'.format(lirc_file_conf))
     else:
-        return False
+    	return False
 
     return True
-
 
 def change_mute_func():
     os.system('irsend SEND_ONCE {} KEY_MUTE'.format(lirc_file_conf))
@@ -125,10 +119,9 @@ def change_sourcemenu_func(source_value):
     elif source_value == 'close':
         os.system('irsend SEND_ONCE {} KEY_EXIT'.format(lirc_file_conf))
     else:
-        return False
+    	return False
 
     return True
-
 
 def change_source_func(source_value):
     if source_value == 'cable box':
@@ -169,11 +162,12 @@ def change_source_func(source_value):
         os.system('irsend SEND_ONCE {} KEY_EXIT'.format(lirc_file_conf))
 
 
+
+
 @ask.launch
 def start_skill():
     welcome_message = 'How should the t.v. update?'
     return question(welcome_message)
-
 
 @ask.intent('ChangePowerIntent')
 def change_power(power_value):
@@ -193,19 +187,16 @@ def change_mute(mute_value):
     text = 'Will {} the t.v.'.format(mute_value)
     return statement(text)
 
-
-@ask.intent('OkayIntent')
-def change_okay(ok_value):
+@ask.intent('OkIntent')
+def change_ok(ok_value):
     change_ok_func()
     text = 'Pressing okay button'
     return statement(text)
-
 
 @ask.intent('ChangeProgramIntent')
 def change_program(program_value, next_or_previous_program):
     text = change_program_func(int(program_value), next_or_previous_program)
     return statement(text)
-
 
 @ask.intent('ChangeProgramNumberIntent')
 def change_programnumber(program_value):
@@ -218,19 +209,18 @@ def change_volume(volume_value, increase_or_decrease_volume):
     text = change_volume_func(int(volume_value), increase_or_decrease_volume)
     return statement(text)
 
-
 @ask.intent('OpenSourceMenuIntent')
 def change_sourcemenu(source_value):
 
-    change_sourcemenu_func(source_value)
+	change_sourcemenu_func(source_value)
 
-    if source_value == 'open':
-        text = 'Opening the source menu'
-    elif source_value == 'close':
-        text = 'Closing the source menu'
-    else:
-        text = 'Sorry, I could not find that command.'
-    return statement(text)
+	if source_value == 'open':
+		text = 'Opening the source menu'
+	elif source_value == 'close':
+		text = 'Closing the source menu'
+	else:
+		text = 'Sorry, I could not find that command.'
+	return statement(text)
 
 
 @ask.intent('MoveIntent')
@@ -244,7 +234,6 @@ def change_move(move_value):
 
     return statement(text)
 
-
 @ask.intent('ChangeSourceIntent')
 def change_source(source_value):
 
@@ -253,12 +242,10 @@ def change_source(source_value):
     return statement(text)
 
 # API endpoint
-
-
 @app.route('/api', methods=['GET'])
 def api():
-    action = request.args.get('action')
-    value = request.args.get('value')
+    action = request.form['action']
+    value = request.form['value']
     if action == 'power':
         change_power_func(value)
     elif action == 'source':
@@ -288,7 +275,6 @@ def api():
     else:
         return "Error", 500
     return "Updating TV", 200
-
 
 if __name__ == '__main__':
     app.run(debug=True)

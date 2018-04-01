@@ -32,6 +32,21 @@ def change_move(move_value):
     elif move_value == 'left':
         os.system('irsend SEND_ONCE {} KEY_LEFT'.format(lirc_file_conf))
 
+def change_programnumber(program_value):
+    if program_value>100:
+        program_value=99
+
+    if program_value<10:
+        os.system('irsend SEND_ONCE {} KEY_{}'.format(lirc_file_conf,program_value))
+    else:
+        number = str(program_value)
+        os.system('irsend SEND_ONCE {} KEY_{}'.format(lirc_file_conf, number[:1]))
+        time.sleep(time_between_press_volume)
+        os.system('irsend SEND_ONCE {} KEY_{}'.format(lirc_file_conf,number[1:2]))
+
+def change_menu():
+    os.system('irsend SEND_ONCE {} KEY_MENU'.format(lirc_file_conf))
+
 def change_source(source_value):
     if source_value == 'cable box':
         os.system('irsend SEND_ONCE {} KEY_MENU'.format(lirc_file_conf))
@@ -84,5 +99,19 @@ def change_volume(volume_value, increase_or_decrease_volume):
         volume_value = 20
 
     for x in range (0, volume_value):
+        time.sleep(time_between_press_volume)
+        os.system('irsend SEND_ONCE {} {}'.format(lirc_file_conf, key))
+
+def change_program(program_value, next_or_previous_program):
+    key = ''
+    if next_or_previous_program == 'next' or next_or_previous_program == 'forward' or next_or_previous_program == 'raise':
+        key = 'KEY_PAGEUP'
+    elif next_or_previous_program == 'previous' or next_or_previous_program == 'back':
+        key = 'KEY_PAGEDOWN'
+
+    if program_value > 20:
+        program_value = 20
+
+    for x in range (0, program_value):
         time.sleep(time_between_press_volume)
         os.system('irsend SEND_ONCE {} {}'.format(lirc_file_conf, key))
